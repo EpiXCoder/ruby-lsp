@@ -92,21 +92,6 @@ module RubyLsp
         end
       end
 
-      # TODO: move to index
-      # sig { params(name: String).returns(T::Array[String]) }
-      # def actual_nesting(name)
-      #   nesting = @stack + [name]
-      #   corrected_nesting = []
-
-      #   nesting.reverse_each do |name|
-      #     corrected_nesting.prepend(name.delete_prefix("::"))
-
-      #     break if name.start_with?("::")
-      #   end
-
-      #   corrected_nesting
-      # end
-
       sig { params(node: Prism::ClassNode).void }
       def on_class_node_leave(node)
         @visibility_stack.pop

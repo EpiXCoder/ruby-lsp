@@ -52,9 +52,6 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
     setup_minitest
     source = <<~RUBY
       class FooTest < MiniTest::Test
-
-
-
         def test_bar; end
       end
     RUBY
@@ -168,6 +165,7 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
   end
 
   def test_no_code_lens_for_rspec
+    setup_rspec
     source = <<~RUBY
       class FooTest < Test::Unit::TestCase
         def test_bar; end
@@ -178,7 +176,6 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
     document = RubyLsp::RubyDocument.new(source: source, version: 1, uri: uri, global_state: @global_state)
 
     dispatcher = Prism::Dispatcher.new
-    setup_rspec
     listener = RubyLsp::Requests::CodeLens.new(@global_state, uri, dispatcher)
     dispatcher.dispatch(document.parse_result.value)
     response = listener.perform
