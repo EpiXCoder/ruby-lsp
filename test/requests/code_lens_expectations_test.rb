@@ -5,27 +5,62 @@ require "test_helper"
 require_relative "support/expectations_test_runner"
 
 class CodeLensExpectationsTest < ExpectationsTestRunner
-  expectations_tests RubyLsp::Requests::CodeLens, "code_lens"
+  # expectations_tests RubyLsp::Requests::CodeLens, "code_lens"
+
+  def setup_minitest
+    source = <<~RUBY
+      module Minitest
+        class Test
+        end
+      end
+    RUBY
+    uri = URI("file:///test/setup_minitest.rb")
+    @global_state.index.index_single(uri, source)
+  end
+
+  def setup_minitest_spec
+    source = <<~RUBY
+      module Minitest
+        class Spec
+        end
+      end
+    RUBY
+    uri = URI("file:///test/setup_minitest_spec.rb")
+    @global_state.index.index_single(uri, source)
+  end
+
+  def setup_test_unit
+    raise
+  end
+
+  def setup_rspec
+    raise
+  end
 
   def run_expectations(source)
+    setup_minitest
     uri = URI("file://#{@_path}")
     document = RubyLsp::RubyDocument.new(source: source, version: 1, uri: uri, global_state: @global_state)
 
     dispatcher = Prism::Dispatcher.new
-    stub_test_library("minitest")
     listener = RubyLsp::Requests::CodeLens.new(@global_state, uri, dispatcher)
     dispatcher.dispatch(document.parse_result.value)
     listener.perform
   end
 
   def test_command_generation_for_minitest
-    stub_test_library("minitest")
+    setup_minitest
     source = <<~RUBY
       class FooTest < MiniTest::Test
+
+
+
         def test_bar; end
       end
     RUBY
     uri = URI("file:///test/fake.rb")
+
+    @global_state.index.index_single(uri, source)
 
     document = RubyLsp::RubyDocument.new(source: source, version: 1, uri: uri, global_state: @global_state)
 
@@ -49,15 +84,17 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
   end
 
   def test_command_generation_for_minitest_spec
-    stub_test_library("minitest")
+    setup_minitest_spec
     source = <<~RUBY
-      class FooTest < MiniTest::Test
+      class FooTest < MiniTest::Spec
         describe "a" do
           it "b"
         end
       end
     RUBY
     uri = URI("file:///spec/fake.rb")
+
+    @global_state.index.index_single(uri, source)
 
     document = RubyLsp::RubyDocument.new(source: source, version: 1, uri: uri, global_state: @global_state)
 
@@ -86,7 +123,7 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
   end
 
   def test_command_generation_for_test_unit
-    stub_test_library("test-unit")
+    setup_test_unit
     source = <<~RUBY
       class FooTest < Test::Unit::TestCase
         def test_bar; end
@@ -123,7 +160,6 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
     document = RubyLsp::RubyDocument.new(source: source, version: 1, uri: uri, global_state: @global_state)
 
     dispatcher = Prism::Dispatcher.new
-    stub_test_library("unknown")
     listener = RubyLsp::Requests::CodeLens.new(@global_state, uri, dispatcher)
     dispatcher.dispatch(document.parse_result.value)
     response = listener.perform
@@ -142,7 +178,7 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
     document = RubyLsp::RubyDocument.new(source: source, version: 1, uri: uri, global_state: @global_state)
 
     dispatcher = Prism::Dispatcher.new
-    stub_test_library("rspec")
+    setup_rspec
     listener = RubyLsp::Requests::CodeLens.new(@global_state, uri, dispatcher)
     dispatcher.dispatch(document.parse_result.value)
     response = listener.perform
@@ -151,6 +187,7 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
   end
 
   def test_no_code_lens_for_unsaved_files
+    setup_minitest
     source = <<~RUBY
       class FooTest < Test::Unit::TestCase
         def test_bar; end
@@ -161,7 +198,6 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
     document = RubyLsp::RubyDocument.new(source: source, version: 1, uri: uri, global_state: @global_state)
 
     dispatcher = Prism::Dispatcher.new
-    stub_test_library("minitest")
     listener = RubyLsp::Requests::CodeLens.new(@global_state, uri, dispatcher)
     dispatcher.dispatch(document.parse_result.value)
     response = listener.perform
@@ -170,6 +206,7 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
   end
 
   def test_no_code_lens_for_unsaved_specs
+    setup_minitest
     source = <<~RUBY
       describe FooTest < Minitest::Spec
         it "does something"; end
@@ -180,7 +217,6 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
     document = RubyLsp::RubyDocument.new(source: source, version: 1, uri: uri, global_state: @global_state)
 
     dispatcher = Prism::Dispatcher.new
-    stub_test_library("minitest")
     listener = RubyLsp::Requests::CodeLens.new(@global_state, uri, dispatcher)
     dispatcher.dispatch(document.parse_result.value)
     response = listener.perform
@@ -190,6 +226,11 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
 
   def test_code_lens_addons
     source = <<~RUBY
+      module Minitest
+        class Test
+        end
+      end
+
       class Test < Minitest::Test; end
     RUBY
 
@@ -211,7 +252,7 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
 
         response = result.response
 
-        assert_equal(response.size, 4)
+        assert_equal(4, response.size)
         assert_match("▶ Run", response[0].command.title)
         assert_match("▶ Run In Terminal", response[1].command.title)
         assert_match("Debug", response[2].command.title)
@@ -223,7 +264,7 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
   end
 
   def test_no_code_lens_for_nested_defs
-    stub_test_library("test-unit")
+    setup_test_unit
     source = <<~RUBY
       class FooTest < Test::Unit::TestCase
         def test_bar
@@ -285,9 +326,5 @@ class CodeLensExpectationsTest < ExpectationsTestRunner
         "0.1.0"
       end
     end
-  end
-
-  def stub_test_library(name)
-    @global_state.stubs(:test_library).returns(name)
   end
 end

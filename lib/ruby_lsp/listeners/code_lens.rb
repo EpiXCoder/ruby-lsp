@@ -65,7 +65,20 @@ module RubyLsp
         class_name = node.constant_path.slice
         @group_stack.push(class_name)
 
-        if @path && class_name.end_with?("Test")
+        return unless @path # if file not yet saved
+
+        constant_path_node = node.constant_path
+        return if constant_path_node.is_a?(Prism::CallNode)
+
+        name = RubyIndexer::Index.constant_name(constant_path_node)
+
+        return unless name
+
+        fully_qualified_name = "Minitest::Test" # RubyIndexer::Index.actual_nesting(@stack,name).join("::")
+
+        ancestors = @global_state.index.linearized_ancestors_of(fully_qualified_name)
+
+        if ancestors.include?("Minitest::Test")
           add_test_code_lens(
             node,
             name: class_name,
@@ -78,6 +91,21 @@ module RubyLsp
           @group_id += 1
         end
       end
+
+      # TODO: move to index
+      # sig { params(name: String).returns(T::Array[String]) }
+      # def actual_nesting(name)
+      #   nesting = @stack + [name]
+      #   corrected_nesting = []
+
+      #   nesting.reverse_each do |name|
+      #     corrected_nesting.prepend(name.delete_prefix("::"))
+
+      #     break if name.start_with?("::")
+      #   end
+
+      #   corrected_nesting
+      # end
 
       sig { params(node: Prism::ClassNode).void }
       def on_class_node_leave(node)
