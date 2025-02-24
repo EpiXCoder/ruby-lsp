@@ -14,7 +14,6 @@ require "minitest_suite"
 
 module Minitest
   module Reporters
-    # TODO: consider if minitest-reporrters should be a dependency of ruby-lsp
     class RubyLspReporter < ::Minitest::StatisticsReporter
       extend T::Sig
 
