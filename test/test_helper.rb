@@ -38,6 +38,7 @@ require "minitest/reporters"
 
 if ENV["RUBY_LSP"]
   require "minitest/reporters/ruby_lsp_reporter"
+  require "minitest_base_reporter"
   Minitest::Reporters.use!(Minitest::Reporters::RubyLspReporter.new)
 else
   minitest_reporter = if ENV["SPEC_REPORTER"]

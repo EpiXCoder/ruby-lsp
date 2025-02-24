@@ -22,7 +22,8 @@ module Minitest
         name.to_s
       end
     end
-    class BaseReporter < Minitest::StatisticsReporter
+
+    class MyBaseReporter < Minitest::StatisticsReporter
       attr_accessor :tests
 
       def initialize(options = {})
