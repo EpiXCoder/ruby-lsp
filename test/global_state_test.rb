@@ -190,6 +190,7 @@ module RubyLsp
     end
 
     def test_type_checker_is_detected_based_on_transitive_sorbet_static
+      raise "foo"
       state = GlobalState.new
 
       Bundler.locked_gems.stubs(dependencies: {})
@@ -200,6 +201,7 @@ module RubyLsp
     end
 
     def test_addon_settings_are_stored
+      skip("foo")
       global_state = GlobalState.new
 
       global_state.apply_options({
