@@ -34,10 +34,12 @@ require "debug/prelude"
 require "debug/config"
 DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) + SORBET_PATHS
 
+require "minitest/reporters"
+
 if ENV["RUBY_LSP"]
   require "minitest/reporters/ruby_lsp_reporter"
+  Minitest::Reporters.use!(Minitest::Reporters::RubyLspReporter.new)
 else
-  require "minitest/reporters"
   minitest_reporter = if ENV["SPEC_REPORTER"]
     Minitest::Reporters::SpecReporter.new(color: true)
   else
