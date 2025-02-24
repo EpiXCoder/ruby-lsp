@@ -23,7 +23,6 @@ require "rubocop/cop/ruby_lsp/use_language_server_aliases"
 require "rubocop/cop/ruby_lsp/use_register_with_handler_method"
 
 require "minitest/autorun"
-require "minitest/reporters"
 require "tempfile"
 require "mocha/minitest"
 
@@ -35,12 +34,17 @@ require "debug/prelude"
 require "debug/config"
 DEBUGGER__::CONFIG[:skip_path] = Array(DEBUGGER__::CONFIG[:skip_path]) + SORBET_PATHS
 
-minitest_reporter = if ENV["SPEC_REPORTER"]
-  Minitest::Reporters::SpecReporter.new(color: true)
+if ENV["RUBY_LSP"]
+  require "minitest/reporters/ruby_lsp_reporter"
 else
-  Minitest::Reporters::DefaultReporter.new(color: true)
+  require "minitest/reporters"
+  minitest_reporter = if ENV["SPEC_REPORTER"]
+    Minitest::Reporters::SpecReporter.new(color: true)
+  else
+    Minitest::Reporters::DefaultReporter.new(color: true)
+  end
+  Minitest::Reporters.use!(minitest_reporter)
 end
-Minitest::Reporters.use!(minitest_reporter)
 
 module Minitest
   class Test
