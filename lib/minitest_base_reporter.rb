@@ -59,28 +59,11 @@ module Minitest
       # called by our own after hooks
       def after_test(_test); end
 
-      def report
-        super
-        after_suite(test_class(tests.last))
-      end
-
       protected
 
       def after_suite(test); end
 
       def before_suite(test); end
-
-      def result(test)
-        if test.error?
-          :error
-        elsif test.skipped?
-          :skip
-        elsif test.failure
-          :fail
-        else
-          :pass
-        end
-      end
 
       def test_class(result)
         # Minitest broke API between 5.10 and 5.11 this gets around Result object
@@ -93,34 +76,8 @@ module Minitest
         end
       end
 
-      def print_colored_status(test)
-        if test.passed?
-          print(green { pad_mark(result(test).to_s.upcase) })
-        elsif test.skipped?
-          print(yellow { pad_mark(result(test).to_s.upcase) })
-        else
-          print(red { pad_mark(result(test).to_s.upcase) })
-        end
-      end
-
-      def total_time
-        super || Minitest::Reporters.clock_time - start_time
-      end
-
-      def total_count
-        options[:total_count]
-      end
-
       def filter_backtrace(backtrace)
         Minitest.filter_backtrace(backtrace)
-      end
-
-      def puts(*args)
-        io.puts(*args)
-      end
-
-      def print(*args)
-        io.print(*args)
       end
 
       def print_info(e, name = true)
