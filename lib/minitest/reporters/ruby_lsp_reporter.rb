@@ -15,13 +15,18 @@ require "minitest_base_reporter"
 module Minitest
   module Reporters
     # TODO: consider if minitest-reporrters should be a dependency of ruby-lsp
-    class RubyLspReporter < ::Minitest::Reporters::MyBaseReporter
+    class RubyLspReporter < ::Minitest::StatisticsReporter
       extend T::Sig
+
+      sig { returns(T.nilable(T::Array[Minitest::Test])) }
+      attr_accessor :tests
 
       sig { void }
       def initialize
         @reporting = T.let(RubyLsp::TestReporter.new, RubyLsp::TestReporter)
-        super
+        self.tests = []
+        # super
+        super($stdout, {})
       end
 
       sig { params(test: Minitest::Test).void }
@@ -30,7 +35,14 @@ module Minitest
           id: id_from_test(test),
           file: file_for_test(test),
         )
-        super
+        last_test = test_class(tests.last)
+
+        suite_changed = last_test.nil? || last_test.name != test.class.name
+
+        return unless suite_changed
+
+        after_suite(last_test) if last_test
+        before_suite(test_class(test))
       end
 
       sig { params(test: Minitest::Test).void }
@@ -39,7 +51,6 @@ module Minitest
           id: id_from_test(test),
           file: file_for_test(test),
         )
-        super
       end
 
       sig { params(test: Minitest::Result).void }
@@ -86,6 +97,23 @@ module Minitest
       end
 
       private
+
+      def after_suite(test)
+      end
+
+      def before_suite(test)
+      end
+
+      def test_class(result)
+        # Minitest broke API between 5.10 and 5.11 this gets around Result object
+        if result.nil?
+          nil
+        elsif result.respond_to?(:klass)
+          Suite.new(result.klass)
+        else
+          Suite.new(result.class.name)
+        end
+      end
 
       sig { params(test: Minitest::Test).returns(String) }
       def id_from_test(test)
