@@ -10,7 +10,7 @@ require "ruby_lsp/test_reporter"
 # TODO: the other reporters call print_info for formatting and backtrace filtering. Look into if we should also do that.
 
 require "minitest"
-require "minitest_base_reporter"
+require "minitest_suite"
 
 module Minitest
   module Reporters
