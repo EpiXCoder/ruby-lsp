@@ -35,10 +35,6 @@ module Minitest
         self.tests = []
       end
 
-      def add_defaults(defaults)
-        self.options = defaults.merge(options)
-      end
-
       # called by our own before hooks
       def before_test(test)
         last_test = test_class(tests.last)
@@ -49,11 +45,6 @@ module Minitest
 
         after_suite(last_test) if last_test
         before_suite(test_class(test))
-      end
-
-      def record(test)
-        super
-        tests << test
       end
 
       # called by our own after hooks
@@ -78,18 +69,6 @@ module Minitest
 
       def filter_backtrace(backtrace)
         Minitest.filter_backtrace(backtrace)
-      end
-
-      def print_info(e, name = true)
-        print("#{e.exception.class}: ") if name
-        e.message.each_line { |line| print_with_info_padding(line) }
-
-        # When e is a Minitest::UnexpectedError, the filtered backtrace is already part of the message printed out
-        # by the previous line. In that case, and that case only, skip the backtrace output.
-        return if e.is_a?(MiniTest::UnexpectedError)
-
-        trace = filter_backtrace(e.backtrace)
-        trace.each { |line| print_with_info_padding(line) }
       end
     end
   end
