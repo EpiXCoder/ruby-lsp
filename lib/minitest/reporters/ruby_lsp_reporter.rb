@@ -24,7 +24,6 @@ module Minitest
       def initialize
         @reporting = T.let(RubyLsp::TestReporter.new, RubyLsp::TestReporter)
         self.tests = []
-        # super
         super($stdout, {})
       end
 
