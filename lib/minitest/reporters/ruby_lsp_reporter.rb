@@ -104,9 +104,10 @@ module Minitest
       def before_suite(suite)
       end
 
-      sig { params(result: T.nilable(Minitest::Result).returns(Suite) }
+      sig { params(result: T.nilable(Minitest::Test)).returns(T.nilable(Suite)) }
       def test_class(result)
         # Minitest broke API between 5.10 and 5.11 this gets around Result object
+        # TODO: test again both
         if result.nil?
           nil
         elsif result.respond_to?(:klass)
