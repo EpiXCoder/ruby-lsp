@@ -14,7 +14,7 @@ require "minitest_suite"
 
 module Minitest
   module Reporters
-    class RubyLspReporter < ::Minitest::StatisticsReporter
+    class RubyLspReporter < ::Minitest::Reporter # TODO: can this inherit from AbstractReporter?
       extend T::Sig
 
       sig { returns(T.nilable(T::Array[Minitest::Test])) }
