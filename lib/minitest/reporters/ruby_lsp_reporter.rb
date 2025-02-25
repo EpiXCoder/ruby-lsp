@@ -115,7 +115,7 @@ module Minitest
 
       sig { params(test: Minitest::Test).returns(String) }
       def id_from_test(test)
-        [test.class.name, test.name].join("#")
+        "#{test.class.name}##{test.name}"
       end
 
       sig { params(result: Minitest::Result).returns(String) }
