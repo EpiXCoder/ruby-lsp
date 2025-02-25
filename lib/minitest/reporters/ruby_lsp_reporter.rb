@@ -16,14 +16,14 @@ module Minitest
     class RubyLspReporter < ::Minitest::Reporter # TODO: can this inherit from AbstractReporter?
       extend T::Sig
 
-      sig { void }
+      #: -> void
       def initialize
         @reporting = T.let(RubyLsp::TestReporter.new, RubyLsp::TestReporter)
         @tests = T.let([], T::Array[Minitest::Test])
         super($stdout, {})
       end
 
-      sig { params(test: Minitest::Test).void }
+      #: (Minitest::Test test) -> void
       def before_test(test)
         @reporting.before_test(
           id: id_from_test(test),
@@ -31,7 +31,7 @@ module Minitest
         )
       end
 
-      sig { params(test: Minitest::Test).void }
+      #: (Minitest::Test test) -> void
       def after_test(test)
         @reporting.after_test(
           id: id_from_test(test),
@@ -39,7 +39,7 @@ module Minitest
         )
       end
 
-      sig { params(test: Minitest::Result).void }
+      #: (Minitest::Result test) -> void
       def record(test)
         super
 
@@ -52,7 +52,7 @@ module Minitest
         end
       end
 
-      sig { params(result: Minitest::Result).void }
+      #: (Minitest::Result result) -> void
       def record_pass(result)
         info = {
           id: id_from_result(result),
@@ -61,7 +61,7 @@ module Minitest
         @reporting.record_pass(**info)
       end
 
-      sig { params(result: Minitest::Result).void }
+      #: (Minitest::Result result) -> void
       def record_skip(result)
         info = {
           id: id_from_result(result),
@@ -71,7 +71,7 @@ module Minitest
         @reporting.record_skip(**info)
       end
 
-      sig { params(result: Minitest::Result).void }
+      #: (Minitest::Result result) -> void
       def record_fail(result)
         info = {
           id: id_from_result(result),
@@ -84,20 +84,20 @@ module Minitest
 
       private
 
-      sig { returns(T::Array[Minitest::Test]) }
+      #: Array[Minitest::Test]
       attr_reader :tests
 
-      sig { params(test: Minitest::Test).returns(String) }
+      #: (Minitest::Test test) -> String
       def id_from_test(test)
         "#{test.class.name}##{test.name}"
       end
 
-      sig { params(result: Minitest::Result).returns(String) }
+      #: (Minitest::Result result) -> String
       def id_from_result(result)
         "#{result.klass}##{result.name}"
       end
 
-      sig { params(test: Minitest::Test).returns(String) }
+      #: (Minitest::Test test) -> String
       def file_for_test(test)
         location = Kernel.const_source_location(test.class_name)
         return "" unless location # TODO: when might this be nil?

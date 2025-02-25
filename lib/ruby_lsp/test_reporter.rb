@@ -7,12 +7,12 @@ module RubyLsp
   class TestReporter
     extend T::Sig
 
-    sig { params(io: IO).void }
+    #: (?io: IO) -> void
     def initialize(io: $stdout)
       @io = io
     end
 
-    sig { params(id: String, file: String).void }
+    #: (id: String, file: String) -> void
     def before_test(id:, file:)
       result = {
         event: "before_test",
@@ -22,7 +22,7 @@ module RubyLsp
       send_message(result)
     end
 
-    sig { params(id: String, file: String).void }
+    #: (id: String, file: String) -> void
     def after_test(id:, file:)
       result = {
         event: "after_test",
@@ -32,7 +32,7 @@ module RubyLsp
       send_message(result)
     end
 
-    sig { params(id: String, file: String).void }
+    #: (id: String, file: String) -> void
     def record_pass(id:, file:)
       result = {
         event: "pass",
@@ -42,14 +42,7 @@ module RubyLsp
       send_message(result)
     end
 
-    sig do
-      params(
-        id: String,
-        type: T.untyped, # TODO: what type should this be?
-        message: String,
-        file: String,
-      ).void
-    end
+    #: (id: String, type: untyped, message: String, file: String) -> void
     def record_fail(id:, type:, message:, file:)
       result = {
         event: "fail",
@@ -61,7 +54,7 @@ module RubyLsp
       send_message(result)
     end
 
-    sig { params(id: String, message: T.nilable(String), file: String).void }
+    #: (id: String, message: String?, file: String) -> void
     def record_skip(id:, message:, file:)
       result = {
         event: "skip",
@@ -72,7 +65,7 @@ module RubyLsp
       send_message(result)
     end
 
-    sig { params(result: T::Hash[Symbol, T.untyped]).void }
+    #: (Hash[Symbol, untyped] result) -> void
     def send_message(result)
       io.puts result.to_json
       io.flush
@@ -80,7 +73,7 @@ module RubyLsp
 
     private
 
-    sig { returns(IO) }
+    #: IO
     attr_reader :io
   end
 end
