@@ -4,7 +4,7 @@
 require "sorbet-runtime"
 require "ruby_lsp/test_reporter"
 
-# NOTE: minitest-reporters mentioned an API change between minitest 5.10 and 5.11, so we should verify:
+# NOTE: minitest-reporters mentioned an API change between minitest 5.10 and 5.11, so we should limit our support
 # https://github.com/minitest-reporters/minitest-reporters/blob/265ff4b40d5827e84d7e902b808fbee860b61221/lib/minitest/reporters/base_reporter.rb#L82-L91
 
 # TODO: the other reporters call print_info for formatting and backtrace filtering. Look into if we should also do that.
@@ -17,13 +17,13 @@ module Minitest
     class RubyLspReporter < ::Minitest::Reporter # TODO: can this inherit from AbstractReporter?
       extend T::Sig
 
-      sig { returns(T.nilable(T::Array[Minitest::Test])) }
+      sig { returns(T::Array[Minitest::Test]) }
       attr_accessor :tests
 
       sig { void }
       def initialize
         @reporting = T.let(RubyLsp::TestReporter.new, RubyLsp::TestReporter)
-        self.tests = []
+        @tests = T.let([], T::Array[Minitest::Test])
         super($stdout, {})
       end
 
@@ -106,12 +106,8 @@ module Minitest
 
       sig { params(result: T.nilable(Minitest::Test)).returns(T.nilable(Suite)) }
       def test_class(result)
-        # Minitest broke API between 5.10 and 5.11 this gets around Result object
-        # TODO: test again both
         if result.nil?
           nil
-        elsif result.respond_to?(:klass)
-          Suite.new(result.klass)
         else
           Suite.new(result.class.name)
         end
