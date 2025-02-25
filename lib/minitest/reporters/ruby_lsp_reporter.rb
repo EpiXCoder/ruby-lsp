@@ -96,10 +96,12 @@ module Minitest
 
       private
 
-      def after_suite(test)
+      sig { params(suite: Suite).void }
+      def after_suite(suite)
       end
 
-      def before_suite(test)
+      sig { params(suite: Suite).void }
+      def before_suite(suite)
       end
 
       def test_class(result)
