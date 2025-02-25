@@ -104,6 +104,7 @@ module Minitest
       def before_suite(suite)
       end
 
+      sig { params(result: T.nilable(Minitest::Result).returns(Suite) }
       def test_class(result)
         # Minitest broke API between 5.10 and 5.11 this gets around Result object
         if result.nil?
