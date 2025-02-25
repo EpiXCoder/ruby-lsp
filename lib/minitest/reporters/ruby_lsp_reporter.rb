@@ -29,14 +29,6 @@ module Minitest
           id: id_from_test(test),
           file: file_for_test(test),
         )
-        last_test = test_class(tests.last)
-
-        suite_changed = last_test.nil? || last_test.name != test.class.name
-
-        return unless suite_changed
-
-        after_suite(last_test) if last_test
-        before_suite(test_class(test))
       end
 
       sig { params(test: Minitest::Test).void }
@@ -95,21 +87,6 @@ module Minitest
       sig { returns(T::Array[Minitest::Test]) }
       attr_reader :tests
 
-      sig { params(suite: Suite).void }
-      def after_suite(suite)
-      end
-
-      sig { params(suite: Suite).void }
-      def before_suite(suite)
-      end
-
-      sig { params(test: T.nilable(Minitest::Test)).returns(T.nilable(Suite)) }
-      def test_class(test)
-        return unless test
-
-        Suite.new(test.class.name)
-      end
-
       sig { params(test: Minitest::Test).returns(String) }
       def id_from_test(test)
         "#{test.class.name}##{test.name}"
@@ -129,18 +106,6 @@ module Minitest
         return "" if file.start_with?("(eval at ") # test is dynamically defined (TODO: better way to check?)
 
         file
-      end
-    end
-
-    class Suite
-      attr_reader :name
-
-      def initialize(name)
-        @name = name
-      end
-
-      def to_s
-        name.to_s
       end
     end
   end
