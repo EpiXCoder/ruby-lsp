@@ -106,11 +106,9 @@ module Minitest
 
       sig { params(test: T.nilable(Minitest::Test)).returns(T.nilable(Suite)) }
       def test_class(test)
-        if test.nil?
-          nil
-        else
-          Suite.new(test.class.name)
-        end
+        return unless test
+
+        Suite.new(test.class.name)
       end
 
       sig { params(test: Minitest::Test).returns(String) }
