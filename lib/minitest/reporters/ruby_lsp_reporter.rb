@@ -104,12 +104,12 @@ module Minitest
       def before_suite(suite)
       end
 
-      sig { params(result: T.nilable(Minitest::Test)).returns(T.nilable(Suite)) }
-      def test_class(result)
-        if result.nil?
+      sig { params(test: T.nilable(Minitest::Test)).returns(T.nilable(Suite)) }
+      def test_class(test)
+        if test.nil?
           nil
         else
-          Suite.new(result.class.name)
+          Suite.new(test.class.name)
         end
       end
 
