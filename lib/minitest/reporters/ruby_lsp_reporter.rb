@@ -17,9 +17,6 @@ module Minitest
     class RubyLspReporter < ::Minitest::Reporter # TODO: can this inherit from AbstractReporter?
       extend T::Sig
 
-      sig { returns(T::Array[Minitest::Test]) }
-      attr_accessor :tests
-
       sig { void }
       def initialize
         @reporting = T.let(RubyLsp::TestReporter.new, RubyLsp::TestReporter)
@@ -95,6 +92,9 @@ module Minitest
       end
 
       private
+
+      sig { returns(T::Array[Minitest::Test]) }
+      attr_reader :tests
 
       sig { params(suite: Suite).void }
       def after_suite(suite)
