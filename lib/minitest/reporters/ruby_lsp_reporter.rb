@@ -10,7 +10,6 @@ require "ruby_lsp/test_reporter"
 # TODO: the other reporters call print_info for formatting and backtrace filtering. Look into if we should also do that.
 
 require "minitest"
-require "minitest_suite"
 
 module Minitest
   module Reporters
@@ -130,6 +129,18 @@ module Minitest
         return "" if file.start_with?("(eval at ") # test is dynamically defined (TODO: better way to check?)
 
         file
+      end
+    end
+
+    class Suite
+      attr_reader :name
+
+      def initialize(name)
+        @name = name
+      end
+
+      def to_s
+        name.to_s
       end
     end
   end
