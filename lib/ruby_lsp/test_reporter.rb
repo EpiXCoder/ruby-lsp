@@ -65,7 +65,7 @@ module RubyLsp
         result = {
           event: "append_output",
           id: id,
-          output: outputContent - Length,
+          output: output,
         }
         send_message(result)
       end

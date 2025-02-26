@@ -10,29 +10,27 @@ require "stringio"
 
 require "ruby_lsp/test_reporter"
 
-# module ::Test
-#   module Unit
-#     class TestCase
-#       alias_method :original_run, :run
+module ::Test
+  module Unit
+    class TestCase
+      alias_method :original_run, :run
 
-#       def run(...)
-#         ::RubyLsp::TestRunner.capture_io(self) do
-#           original_run(...)
-#         end
-#       end
+      def run(...)
+        # ::RubyLsp::TestRunner.capture_io(self) do
+        original_run(...)
+        # end
+      end
 
-#       # TODO: restore original name after
-#     end
-#   end
-# end
+      # TODO: restore original name after
+    end
+  end
+end
 
 module RubyLsp
   class TestRunner < ::Test::Unit::UI::TestRunner
     #: (Test::Unit::TestSuite suite, Hash[Symbol, untyped] options) -> void
     def initialize(suite, options = {})
       @reporter = options[:reporter] || ::RubyLsp::TestReporter
-      @current_file = ""
-      @current_test_id = ""
       super(suite, options)
     end
 
@@ -139,10 +137,9 @@ module RubyLsp
       ensure
         $stdout = orig_stdout
         $stderr = orig_stderr
-        id = "#{test.class.name}##{test.method_name}"
         unless captured_stdout.string.empty?
-          result = { event: "append_output", id: id, stdout: captured_stdout.string }
-          puts result.to_json
+          id = "#{test.class.name}##{test.method_name}"
+          ::RubyLsp::TestReporter.append_output(id: id, output: captured_stdout.string)
         end
       end
     end
