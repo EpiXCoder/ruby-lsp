@@ -10,6 +10,18 @@ require "sorbet-runtime"
 
 require "ruby_lsp/test_reporter"
 
+class ::Test::Unit::TestCase
+  alias_method :original_run, :run
+
+  def run(...)
+    ::RubyLsp::TestRunner.capture_io(self) do
+      original_run(...)
+    end
+  end
+
+  # TODO: restore original name after
+end
+
 module RubyLsp
   class TestRunner < ::Test::Unit::UI::TestRunner
     extend T::Sig
@@ -108,6 +120,30 @@ module RubyLsp
       mediator.add_listener(Test::Unit::TestResult::FAULT, &method(:result_fault))
       mediator.add_listener(Test::Unit::TestCase::STARTED_OBJECT, &method(:test_started))
       mediator.add_listener(Test::Unit::TestCase::FINISHED_OBJECT, &method(:test_finished))
+    end
+
+    # based on minitest's capture_io
+    def self.capture_io(test, &block)
+      require "stringio"
+      captured_stdout = StringIO.new
+      captured_stderr = StringIO.new
+
+      orig_stdout = $stdout
+      orig_stderr = $stderr
+      $stdout = captured_stdout
+      $stderr = captured_stderr
+
+      yield
+
+      # TODO: also handle stderr
+    ensure
+      $stdout = orig_stdout
+      $stderr = orig_stderr
+      id = "#{test.class.name}##{test.method_name}"
+      if captured_stdout.string.size > 0
+        result = { event: "append_output", id: id, stdout: captured_stdout.string }
+        puts result.to_json
+      end
     end
   end
 end

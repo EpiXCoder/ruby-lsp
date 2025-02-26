@@ -99,6 +99,16 @@ module RubyLsp
       output_writer.write(result)
     end
 
+    #: (id: String, output: String) -> void
+    def append_output(id:, output:)
+      result = {
+        event: "append_output",
+        id: id,
+        output: output,
+      }
+      output_writer.write(result)
+    end
+
     private
 
     #: IO?

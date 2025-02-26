@@ -21,4 +21,9 @@ class Sample < Test::Unit::TestCase
   def test_that_raises
     raise "oops"
   end
+
+  def test_that_outputs
+    puts "hello stdout"
+    # puts "hello stderr"
+  end
 end
