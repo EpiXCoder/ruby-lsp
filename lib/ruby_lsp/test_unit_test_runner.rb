@@ -4,27 +4,50 @@
 require "test/unit"
 require "test/unit/ui/testrunner"
 require "stringio"
+require "delegate"
 
 # Example of usage (using test/unit's own tests)
 # RUBYOPT=-r../../Shopify/ruby-lsp/lib/ruby_lsp/test_unit_test_runner.rb bundle exec ruby test/run-test.rb --runner=ruby_lsp
 
 require "ruby_lsp/test_reporter"
 
-module ::Test
-  module Unit
-    class TestCase
-      alias_method :original_run, :run
+# module ::Test
+#   module Unit
+#     class TestCase
+#       alias_method :original_run_test, :run_test
 
-      def run(...)
-        # ::RubyLsp::TestRunner.capture_io(self) do
-        original_run(...)
-        # end
-      end
+#       def run_test
+#         ::RubyLsp::TestRunner.capture_io(self) do
+#           original_run_test
+#         end
+#       end
 
-      # TODO: restore original name after
-    end
+#       # TODO: restore original name after?
+#     end
+#   end
+# end
+
+class IOWrapper < SimpleDelegator
+  attr_accessor :test_id
+
+  def puts(*args)
+    args.each { |arg| log("#{arg}\n") }
+  end
+
+  def print(*args)
+    args.each { |arg| log(arg.to_s) }
+  end
+
+  private
+
+  def log(message)
+    # write("Content-Length: #{json_message.bytesize}\r\n\r\n#{json_message}")
+    ::RubyLsp::TestReporter.append_output(id: test_id, output: message)
   end
 end
+
+$stdout = IOWrapper.new($stdout)
+$stderr = IOWrapper.new($stderr)
 
 module RubyLsp
   class TestRunner < ::Test::Unit::UI::TestRunner
@@ -41,6 +64,7 @@ module RubyLsp
       current_test = test
       @current_file = file_for_test(current_test)
       @current_test_id = "#{current_test.class.name}##{current_test.method_name}"
+      $stdout.test_id = @current_test_id
       result = {
         id: @current_test_id,
         file: @current_file,
@@ -124,21 +148,16 @@ module RubyLsp
     class << self
       def capture_io(test, &block)
         captured_stdout = StringIO.new
-        captured_stderr = StringIO.new
 
         orig_stdout = $stdout
-        orig_stderr = $stderr
         $stdout = captured_stdout
-        $stderr = captured_stderr
 
         yield
-
-        # TODO: also handle stderr
       ensure
         $stdout = orig_stdout
-        $stderr = orig_stderr
         unless captured_stdout.string.empty?
-          id = "#{test.class.name}##{test.method_name}"
+          # id = "#{test.class.name}##{test.method_name}"
+          id = "BLAH"
           ::RubyLsp::TestReporter.append_output(id: id, output: captured_stdout.string)
         end
       end

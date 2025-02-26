@@ -24,6 +24,8 @@ class Sample < Test::Unit::TestCase
 
   def test_that_outputs
     puts "hello stdout"
+    sleep 1
+    assert_equal(1, 1)
     # puts "hello stderr"
   end
 end
