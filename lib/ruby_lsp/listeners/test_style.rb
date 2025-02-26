@@ -7,9 +7,71 @@ module RubyLsp
       class << self
         extend T::Sig
 
+        # Resolves the minimal set of commands required to execute the requested tests
         #: (Array[Hash[Symbol, untyped]]) -> Array[String]
         def resolve_test_commands(items)
-          []
+          # A nested hash of file_path => test_group => { tags: [], examples: [test_example] } to ensure we build the
+          # minimum amount of commands needed to execute the requested tests. This is only used for specific examples
+          # where we will need more complex regexes to execute it all at the same time
+          aggregated_tests = Hash.new { |hash, key| hash[key] = {} }
+          # Full files are paths that should be executed as a whole e.g.: an entire test file or directory
+          full_files = []
+          queue = items.dup
+
+          until queue.empty?
+            item = T.must(queue.shift)
+            tags = item[:tags]
+
+            children = item[:children]
+            uri = URI(item[:uri])
+            path = uri.full_path
+            next unless path
+
+            if tags.include?("test_dir")
+              full_files << "#{path}/**/*" if children.empty?
+            elsif tags.include?("test_file")
+              full_files << path if children.empty?
+            elsif tags.include?("test_group")
+              aggregated_tests[path][item[:label]] = { tags: tags, examples: [] }
+            elsif tags.include?("minitest")
+              class_name, method_name = item[:id].split("#")
+              aggregated_tests[path][class_name][:examples] << method_name
+            end
+
+            queue.concat(children) unless children.empty?
+          end
+
+          commands = aggregated_tests.map do |file_path, groups_and_examples|
+            command = +"#{BASE_COMMAND} -Itest #{file_path}"
+
+            unless groups_and_examples.empty?
+              regexes = groups_and_examples.flat_map do |group, info|
+                examples = info[:examples]
+                group_regex = Shellwords.escape(group.gsub(DYNAMIC_REFERENCE_MARKER, ".*"))
+
+                if examples.empty?
+                  "^#{group_regex}(#|::)"
+                elsif examples.length == 1
+                  "^#{group_regex}##{examples[0]}$"
+                else
+                  "^#{group_regex}#(#{examples.join("|")})$"
+                end
+              end
+
+              regex = if regexes.length == 1
+                regexes[0]
+              else
+                "(#{regexes.join("|")})"
+              end
+
+              command << " --name \"/#{regex}/\""
+            end
+
+            command
+          end
+
+          commands << "#{BASE_COMMAND} -Itest #{full_files.join(" ")}" unless full_files.empty?
+          commands
         end
       end
 
@@ -18,6 +80,15 @@ module RubyLsp
 
       ACCESS_MODIFIERS = [:public, :private, :protected].freeze
       DYNAMIC_REFERENCE_MARKER = "<dynamic_reference>"
+      BASE_COMMAND = T.let(
+        begin
+          Bundler.with_original_env { Bundler.default_lockfile }
+          "bundle exec ruby"
+        rescue Bundler::GemfileNotFound
+          "ruby"
+        end,
+        String,
+      )
 
       #: (ResponseBuilders::TestCollection response_builder, GlobalState global_state, Prism::Dispatcher dispatcher, URI::Generic uri) -> void
       def initialize(response_builder, global_state, dispatcher, uri)
