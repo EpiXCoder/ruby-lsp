@@ -1,7 +1,8 @@
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 import { promisify } from "util";
 import path from "path";
 
+import * as rpc from "vscode-jsonrpc/node";
 import * as vscode from "vscode";
 import { CodeLens } from "vscode-languageclient/node";
 
@@ -70,9 +71,7 @@ export class TestController {
     this.testRunProfile = this.testController.createRunProfile(
       "Run",
       vscode.TestRunProfileKind.Run,
-      async (request, token) => {
-        await this.runHandler(request, token);
-      },
+      this.fullDiscovery ? this.runTest.bind(this) : this.runHandler.bind(this),
       true,
     );
 
@@ -296,6 +295,70 @@ export class TestController {
       type: "counter",
       attributes: { label: "debug", vscodemachineid: vscode.env.machineId },
     });
+  }
+
+  private async runTest(
+    request: vscode.TestRunRequest,
+    _token: vscode.CancellationToken,
+  ) {
+    const run = this.testController.createTestRun(request, undefined, true);
+
+    const items: vscode.TestItem[] = [];
+    if (request.include) {
+      request.include.forEach((test) => items.push(test));
+    } else {
+      this.testController.items.forEach((test) => items.push(test));
+    }
+
+    const requestTestItems = this.buildRequestTestItems(items, request.exclude);
+
+    // TODO: we need to account for running tests from multiple workspaces
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(items[0].uri!)!;
+    const workspace = await this.getOrActivateWorkspace(workspaceFolder);
+    const response =
+      await workspace.lspClient?.resolveTestCommands(requestTestItems);
+
+    if (!response) {
+      items.forEach((test) =>
+        run.errored(
+          test,
+          new vscode.TestMessage(
+            "Could not resolve test command to run selected tests",
+          ),
+        ),
+      );
+      run.end();
+      return;
+    }
+
+    items.forEach((test) => run.enqueued(test));
+
+    for (const command of response.commands) {
+      // Use JSON RPC to communicate with the process executing the tests
+      const testProcess = spawn(command, { env: workspace.ruby.env });
+      const connection = rpc.createMessageConnection(
+        new rpc.StreamMessageReader(testProcess.stdout),
+        new rpc.StreamMessageWriter(testProcess.stdin),
+      );
+
+      // Handle the JSON events being emitted by the tests
+      connection.onNotification("start", (params: any) => {
+        const test = this.findTestById(params.id);
+        if (test) {
+          run.started(test);
+        }
+      });
+
+      // Handle the execution end
+      testProcess.on("exit", (_code) => {
+        connection.end();
+        connection.dispose();
+      });
+
+      connection.listen();
+    }
+
+    run.end();
   }
 
   private async runHandler(
