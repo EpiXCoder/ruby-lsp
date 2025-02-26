@@ -52,7 +52,7 @@ module RubyLsp
         id: id,
         file: file,
       }
-      send_message(result)
+      output_writer.write(result)
     end
 
     #: (id: String, file: String) -> void
@@ -62,7 +62,7 @@ module RubyLsp
         id: id,
         file: file,
       }
-      send_message(result)
+      output_writer.write(result)
     end
 
     #: (id: String, type: untyped, message: String, file: String) -> void
@@ -74,7 +74,7 @@ module RubyLsp
         message: message,
         file: file,
       }
-      send_message(result)
+      output_writer.write(result)
     end
 
     #: (id: String, message: String?, file: String) -> void
@@ -85,7 +85,7 @@ module RubyLsp
         message: message,
         file: file,
       }
-      send_message(result)
+      output_writer.write(result)
     end
 
     #: (id: String, message: String?, file: String) -> void
@@ -96,7 +96,7 @@ module RubyLsp
         message: message,
         file: file,
       }
-      send_message(result)
+      output_writer.write(result)
     end
 
     private
@@ -104,9 +104,7 @@ module RubyLsp
     #: IO?
     attr_reader :io
 
-    #: (Hash[Symbol, untyped] result) -> void
-    def send_message(result)
-      @output_writer.write(result)
-    end
+    #: OutputWriter
+    attr_reader :output_writer
   end
 end
