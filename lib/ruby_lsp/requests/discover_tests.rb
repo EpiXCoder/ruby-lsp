@@ -38,7 +38,8 @@ module RubyLsp
         if @index.entries_for(uri.to_s)
           Listeners::TestStyle.new(@response_builder, @global_state, @dispatcher, @document.uri)
           Listeners::SpecStyle.new(@response_builder, @global_state, @dispatcher, @document.uri)
-          @dispatcher.visit(@document.parse_result.value)
+
+          @dispatcher.visit(@document.ast)
         else
           @global_state.synchronize do
             RubyIndexer::DeclarationListener.new(
@@ -55,7 +56,7 @@ module RubyLsp
             # Dispatch the events both for indexing the test file and discovering the tests. The order here is
             # important because we need the index to be aware of the existing classes/modules/methods before the test
             # listeners can do their work
-            @dispatcher.visit(@document.parse_result.value)
+            @dispatcher.visit(@document.ast)
           end
         end
 
