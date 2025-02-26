@@ -1,36 +1,38 @@
-# typed: strict
+# typed: false
 # frozen_string_literal: true
 
 require "test/unit"
 require "test/unit/ui/testrunner"
-require "sorbet-runtime"
+require "stringio"
 
 # Example of usage (using test/unit's own tests)
 # RUBYOPT=-r../../Shopify/ruby-lsp/lib/ruby_lsp/test_unit_test_runner.rb bundle exec ruby test/run-test.rb --runner=ruby_lsp
 
 require "ruby_lsp/test_reporter"
 
-class ::Test::Unit::TestCase
-  alias_method :original_run, :run
+# module ::Test
+#   module Unit
+#     class TestCase
+#       alias_method :original_run, :run
 
-  def run(...)
-    ::RubyLsp::TestRunner.capture_io(self) do
-      original_run(...)
-    end
-  end
+#       def run(...)
+#         ::RubyLsp::TestRunner.capture_io(self) do
+#           original_run(...)
+#         end
+#       end
 
-  # TODO: restore original name after
-end
+#       # TODO: restore original name after
+#     end
+#   end
+# end
 
 module RubyLsp
   class TestRunner < ::Test::Unit::UI::TestRunner
-    extend T::Sig
     #: (Test::Unit::TestSuite suite, Hash[Symbol, untyped] options) -> void
     def initialize(suite, options = {})
-      @reporter = T.let(options[:reporter] || ::RubyLsp::TestReporter.new, ::RubyLsp::TestReporter)
-      @current_file = T.let("", String)
-      @current_test_id = T.let("", String)
-      @mediator = T.let(nil, T.nilable(::Test::Unit::UI::TestRunnerMediator))
+      @reporter = options[:reporter] || ::RubyLsp::TestReporter
+      @current_file = ""
+      @current_test_id = ""
       super(suite, options)
     end
 
@@ -104,7 +106,7 @@ module RubyLsp
 
     #: (::Test::Unit::TestCase test) -> String
     def file_for_test(test)
-      location = Kernel.const_source_location(T.must(test.class.name))
+      location = Kernel.const_source_location(test.class.name)
       return "" unless location # TODO: when might this be nil?
 
       file, _line = location
@@ -115,34 +117,33 @@ module RubyLsp
 
     #: -> void
     def attach_to_mediator
-      # TODO: fix T.must
-      mediator = T.must(@mediator)
-      mediator.add_listener(Test::Unit::TestResult::FAULT, &method(:result_fault))
-      mediator.add_listener(Test::Unit::TestCase::STARTED_OBJECT, &method(:test_started))
-      mediator.add_listener(Test::Unit::TestCase::FINISHED_OBJECT, &method(:test_finished))
+      @mediator.add_listener(Test::Unit::TestResult::FAULT, &method(:result_fault))
+      @mediator.add_listener(Test::Unit::TestCase::STARTED_OBJECT, &method(:test_started))
+      @mediator.add_listener(Test::Unit::TestCase::FINISHED_OBJECT, &method(:test_finished))
     end
 
     # based on minitest's capture_io
-    def self.capture_io(test, &block)
-      require "stringio"
-      captured_stdout = StringIO.new
-      captured_stderr = StringIO.new
+    class << self
+      def capture_io(test, &block)
+        captured_stdout = StringIO.new
+        captured_stderr = StringIO.new
 
-      orig_stdout = $stdout
-      orig_stderr = $stderr
-      $stdout = captured_stdout
-      $stderr = captured_stderr
+        orig_stdout = $stdout
+        orig_stderr = $stderr
+        $stdout = captured_stdout
+        $stderr = captured_stderr
 
-      yield
+        yield
 
-      # TODO: also handle stderr
-    ensure
-      $stdout = orig_stdout
-      $stderr = orig_stderr
-      id = "#{test.class.name}##{test.method_name}"
-      if captured_stdout.string.size > 0
-        result = { event: "append_output", id: id, stdout: captured_stdout.string }
-        puts result.to_json
+        # TODO: also handle stderr
+      ensure
+        $stdout = orig_stdout
+        $stderr = orig_stderr
+        id = "#{test.class.name}##{test.method_name}"
+        unless captured_stdout.string.empty?
+          result = { event: "append_output", id: id, stdout: captured_stdout.string }
+          puts result.to_json
+        end
       end
     end
   end
