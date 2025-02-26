@@ -4,12 +4,45 @@
 require "json"
 
 module RubyLsp
+  class OutputWriter
+    extend T::Helpers
+    abstract!
+
+    #: (io: IO?) -> void
+    def initialize(io: $stdout)
+      @io = T.let(io, IO)
+    end
+
+    # @abstract
+    #: (Hash[Symbol, untyped] result) -> void
+    def write(result); end
+  end
+
+  class PlainWriter < OutputWriter
+    # @override
+    #: (Hash[Symbol, untyped] result) -> void
+    def write(result)
+      @io.puts result.to_json
+      @io.flush
+    end
+  end
+
+  class JsonRPCWriter < OutputWriter
+    # @override
+    #: (Hash[Symbol, untyped] result) -> void
+    def write(result)
+      json_message = result.to_json
+      @io.write("Content-Length: #{json_message.bytesize}\r\n\r\n#{json_message}")
+    end
+  end
+
   class TestReporter
     extend T::Sig
 
-    #: (?io: IO) -> void
-    def initialize(io: $stdout)
+    #: (io: IO?, output_writer: singleton(OutputWriter)) -> void
+    def initialize(io: $stdout, output_writer: PlainWriter)
       @io = io
+      @output_writer = T.let(output_writer.new(io: io), OutputWriter)
     end
 
     #: (id: String, file: String) -> void
@@ -68,13 +101,12 @@ module RubyLsp
 
     private
 
-    #: IO
+    #: IO?
     attr_reader :io
 
     #: (Hash[Symbol, untyped] result) -> void
     def send_message(result)
-      io.puts result.to_json
-      io.flush
+      @output_writer.write(result)
     end
   end
 end
