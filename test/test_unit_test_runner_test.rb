@@ -72,8 +72,11 @@ module RubyLsp
       output.sync = true # for windows
       result = []
       while (headers = output.gets("\r\n\r\n"))
-        content_length = Integer(headers[/Content-Length: (\d+)/i, 1])
-        json = JSON.parse(T.must(output.read(content_length)))
+        content_length = headers[/Content-Length: (\d+)/i, 1]
+        puts "CL: #{content_length}"
+        break unless content_length
+
+        json = JSON.parse(T.must(output.read(Integer(content_length))))
         result << json
       end
       result
