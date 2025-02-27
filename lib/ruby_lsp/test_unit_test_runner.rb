@@ -81,7 +81,7 @@ module RubyLsp
       file, _line = location
       return if file.start_with?("(eval at ") # test is dynamically defined (TODO: better way to check?)
 
-      absolute_path = File.expand_path(file, __dir__)
+      absolute_path = File.expand_path(file, Dir.pwd)
       URI::Generic.from_path(path: absolute_path)
     end
 
