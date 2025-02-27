@@ -7,13 +7,8 @@ module RubyLsp
   class TestUnitTestRunnerTest < Minitest::Test
     def test_test_runner_output
       shell_output = %x(bundle exec ruby test/fixtures/test_unit_example.rb --runner ruby_lsp)
-
-      # temporary debug for windows
-      puts shell_output
-
       actual = parse_output(shell_output)
-
-      actual.each { |result| result["file"].gsub!(Dir.pwd + "/lib/ruby_lsp/", "/absolute_path_to/") }
+      actual.each { |result| result["file"].gsub!(File.expand_path("lib/ruby_lsp"), "/absolute_path_to") }
 
       expected = [
         {
