@@ -73,10 +73,11 @@ module RubyLsp
       result = []
       while (headers = output.gets("\r\n\r\n"))
         content_length = headers[/Content-Length: (\d+)/i, 1]
-        puts "CL: #{content_length}"
-        break unless content_length
 
-        json = JSON.parse(T.must(output.read(Integer(content_length))))
+        data = output.read(Integer(content_length))
+        break unless data # windows hack
+
+        json = JSON.parse(data)
         result << json
       end
       result
