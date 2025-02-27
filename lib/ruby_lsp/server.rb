@@ -1143,7 +1143,7 @@ module RubyLsp
       end
 
       response = {
-        locations: Requests::GotoRelevantFile.new(path).perform,
+        locations: Requests::GotoRelevantFile.new(path, @global_state.workspace_path).perform,
       }
       send_message(Result.new(id: message[:id], response: response))
     end

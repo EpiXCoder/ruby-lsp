@@ -4,17 +4,13 @@
 require "test_helper"
 
 class GotoRelevantFileTest < Minitest::Test
-  def setup
-    Dir.stubs(:pwd).returns("/workspace")
-  end
-
   def test_when_input_is_test_file_returns_array_of_implementation_file_locations
     stub_glob_pattern("**/goto_relevant_file.rb", ["lib/ruby_lsp/requests/goto_relevant_file.rb"])
 
     test_file_path = "/workspace/test/requests/goto_relevant_file_test.rb"
     expected = ["/workspace/lib/ruby_lsp/requests/goto_relevant_file.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(test_file_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(test_file_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -26,7 +22,7 @@ class GotoRelevantFileTest < Minitest::Test
     impl_path = "/workspace/lib/ruby_lsp/requests/goto_relevant_file.rb"
     expected = ["/workspace/test/requests/goto_relevant_file_test.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -44,7 +40,7 @@ class GotoRelevantFileTest < Minitest::Test
       "/workspace/test/integration/some_feature_test.rb",
     ]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path, "/workspace").perform
     assert_equal(expected.sort, result.sort)
   end
 
@@ -53,7 +49,7 @@ class GotoRelevantFileTest < Minitest::Test
     stub_glob_pattern(pattern, [])
 
     file_path = "/workspace/lib/ruby_lsp/requests/nonexistent_file.rb"
-    result = RubyLsp::Requests::GotoRelevantFile.new(file_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(file_path, "/workspace").perform
     assert_empty(result)
   end
 
@@ -63,7 +59,7 @@ class GotoRelevantFileTest < Minitest::Test
     test_path = "/workspace/test/feature_test.rb"
     expected = ["/workspace/lib/feature.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(test_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(test_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -73,7 +69,7 @@ class GotoRelevantFileTest < Minitest::Test
     test_path = "/workspace/spec/feature_spec.rb"
     expected = ["/workspace/lib/feature.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(test_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(test_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -83,7 +79,7 @@ class GotoRelevantFileTest < Minitest::Test
     test_path = "/workspace/test/feature_integration_test.rb"
     expected = ["/workspace/lib/feature.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(test_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(test_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -93,7 +89,7 @@ class GotoRelevantFileTest < Minitest::Test
     test_path = "/workspace/test/test_feature.rb"
     expected = ["/workspace/lib/feature.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(test_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(test_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -103,7 +99,7 @@ class GotoRelevantFileTest < Minitest::Test
     test_path = "/workspace/test/spec_feature.rb"
     expected = ["/workspace/lib/feature.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(test_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(test_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -113,7 +109,7 @@ class GotoRelevantFileTest < Minitest::Test
     test_path = "/workspace/test/integration_test_feature.rb"
     expected = ["/workspace/lib/feature.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(test_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(test_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -124,7 +120,7 @@ class GotoRelevantFileTest < Minitest::Test
     impl_path = "/workspace/lib/feature.rb"
     expected = ["/workspace/test/feature_test.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -135,7 +131,7 @@ class GotoRelevantFileTest < Minitest::Test
     impl_path = "/workspace/lib/feature.rb"
     expected = ["/workspace/spec/feature_spec.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
@@ -146,7 +142,7 @@ class GotoRelevantFileTest < Minitest::Test
     impl_path = "/workspace/lib/feature.rb"
     expected = ["/workspace/test/feature_integration_test.rb"]
 
-    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path).perform
+    result = RubyLsp::Requests::GotoRelevantFile.new(impl_path, "/workspace").perform
     assert_equal(expected, result)
   end
 
