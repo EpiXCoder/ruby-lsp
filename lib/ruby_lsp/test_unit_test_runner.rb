@@ -8,6 +8,8 @@ require "ruby_indexer/lib/ruby_indexer/uri"
 
 module RubyLsp
   class TestRunner < ::Test::Unit::UI::TestRunner
+    private
+
     #: (::Test::Unit::TestCase test) -> void
     def test_started(test)
       current_test = test
