@@ -64,6 +64,7 @@ Sorbet/StrictSigil:
     - "lib/ruby_indexer/test/**/*.rb"
     - "lib/ruby-lsp.rb"
     - "lib/ruby_indexer/lib/ruby_indexer/prefix_tree.rb"
+    - "lib/ruby_indexer/lib/ruby_indexer/uri.rb" # runs as part of host app where sorbet-runtime may not be available
     - "lib/ruby_lsp/load_sorbet.rb"
     - "lib/ruby_lsp/scripts/compose_bundle.rb"
     - "lib/ruby_lsp/test_helper.rb"

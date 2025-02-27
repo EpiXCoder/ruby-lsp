@@ -430,7 +430,7 @@ module RubyLsp
         matched_uris = @index.search_require_paths(path_node_to_complete.content)
 
         matched_uris.map!(&:require_path).sort!.each do |path|
-          @response_builder << build_completion(T.must(path), path_node_to_complete)
+          @response_builder << build_completion(path, path_node_to_complete)
         end
       end
 
