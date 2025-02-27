@@ -21,48 +21,64 @@ module RubyLsp
 
       expected = [
         {
-          "event" => "start",
-          "id" => "Sample#test_that_fails",
-          "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          "method" => "start",
+          "params" => {
+            "id" => "Sample#test_that_fails",
+            "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          },
         },
         {
-          "event" => "fail",
-          "id" => "Sample#test_that_fails",
-          "type" => "Test::Unit::Failure",
-          "message" => "<1> expected but was\n<2>.",
-          "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          "method" => "fail",
+          "params" => {
+            "id" => "Sample#test_that_fails",
+            "type" => "Test::Unit::Failure",
+            "message" => "<1> expected but was\n<2>.",
+            "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          },
         },
         {
-          "event" => "start",
-          "id" => "Sample#test_that_is_pending",
-          "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          "method" => "start",
+          "params" => {
+            "id" => "Sample#test_that_is_pending",
+            "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          },
         },
         {
-          "event" => "skip",
-          "id" => "Sample#test_that_is_pending",
-          "message" => "pending test",
-          "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          "method" => "skip",
+          "params" => {
+            "id" => "Sample#test_that_is_pending",
+            "message" => "pending test",
+            "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          },
         },
         {
-          "event" => "start",
-          "id" => "Sample#test_that_passes",
-          "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          "method" => "start",
+          "params" => {
+            "id" => "Sample#test_that_passes",
+            "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          },
         },
         {
-          "event" => "pass",
-          "id" => "Sample#test_that_passes",
-          "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          "method" => "pass",
+          "params" => {
+            "id" => "Sample#test_that_passes",
+            "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          },
         },
         {
-          "event" => "start",
-          "id" => "Sample#test_that_raises",
-          "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          "method" => "start",
+          "params" => {
+            "id" => "Sample#test_that_raises",
+            "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          },
         },
         {
-          "event" => "error",
-          "id" => "Sample#test_that_raises",
-          "message" => "RuntimeError: oops",
-          "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          "method" => "error",
+          "params" => {
+            "id" => "Sample#test_that_raises",
+            "message" => "RuntimeError: oops",
+            "uri" => "file://#{project_path}/test/fixtures/test_unit_example.rb",
+          },
         },
       ]
       assert_equal(expected, actual)
