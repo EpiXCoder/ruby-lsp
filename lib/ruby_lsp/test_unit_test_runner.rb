@@ -24,9 +24,6 @@ module RubyLsp
     #: (::Test::Unit::TestCase test) -> void
     def test_finished(test)
       if test.passed?
-        # tests with an Omission are still marked as passed, which seems strange
-        # return if test.instance_variable_get("@_result").faults.any?
-
         TestReporter.record_pass(
           id: @current_test_id,
           uri: @current_uri,
