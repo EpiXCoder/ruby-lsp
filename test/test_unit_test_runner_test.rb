@@ -7,8 +7,18 @@ require "os"
 module RubyLsp
   class TestUnitTestRunnerTest < Minitest::Test
     def test_test_runner_output
-      shell_output = %x(bundle exec ruby test/fixtures/test_unit_example.rb --runner ruby_lsp)
-      actual = parse_output(shell_output)
+      # shell_output = %x(bundle exec ruby test/fixtures/test_unit_example.rb --runner ruby_lsp)
+      # Bundler.with_unbundled_env do
+      stdout, _stderr, _status = Open3.capture3(
+        "bundle",
+        "exec",
+        "ruby",
+        "test/fixtures/test_unit_example.rb",
+        "--runner",
+        "ruby_lsp",
+      )
+      # end
+      actual = parse_output(stdout)
       actual.each { |result| result["file"].gsub!(File.expand_path("lib/ruby_lsp"), "/absolute_path_to") }
 
       expected = [
@@ -64,11 +74,9 @@ module RubyLsp
 
     def parse_output(shell_output)
       output = StringIO.new(shell_output)
-      output.binmode # for windows
-      output.sync = true # for windows
       result = []
-      linebreak = OS.windows? ? "\n" : "\r\n"
-      while (headers = output.gets(linebreak * 2))
+      while (headers = output.gets("\r\n\r\n"))
+        # binding.irb
         content_length = headers[/Content-Length: (\d+)/i, 1]
         data = output.read(Integer(content_length))
         json = JSON.parse(T.must(data))
