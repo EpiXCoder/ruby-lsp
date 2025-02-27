@@ -8,51 +8,51 @@ module RubyLsp
     class << self
       #: (id: String, uri: URI::Generic) -> void
       def start_test(id:, uri:)
-        result = {
+        params = {
           id: id,
           uri: uri.to_s,
         }
-        send_message("start", result)
+        send_message("start", params)
       end
 
       #: (id: String, uri: URI::Generic) -> void
       def record_pass(id:, uri:)
-        result = {
+        params = {
           id: id,
           uri: uri.to_s,
         }
-        send_message("pass", result)
+        send_message("pass", params)
       end
 
       #: (id: String, type: untyped, message: String, uri: URI::Generic) -> void
       def record_fail(id:, type:, message:, uri:)
-        result = {
+        params = {
           id: id,
           type: type,
           message: message,
           uri: uri.to_s,
         }
-        send_message("fail", result)
+        send_message("fail", params)
       end
 
       #: (id: String, message: String?, uri: URI::Generic) -> void
       def record_skip(id:, message:, uri:)
-        result = {
+        params = {
           id: id,
           message: message,
           uri: uri.to_s,
         }
-        send_message("skip", result)
+        send_message("skip", params)
       end
 
       #: (id: String, message: String?, uri: String) -> void
       def record_error(id:, message:, uri:)
-        result = {
+        params = {
           id: id,
           message: message,
           uri: uri.to_s,
         }
-        send_message("error", result)
+        send_message("error", params)
       end
 
       private
