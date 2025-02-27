@@ -85,7 +85,7 @@ module RubyLsp
       file, _line = location
       return "" if file.start_with?("(eval at ") # test is dynamically defined (TODO: better way to check?)
 
-      file
+      File.expand_path(file, __dir__)
     end
 
     #: -> void
