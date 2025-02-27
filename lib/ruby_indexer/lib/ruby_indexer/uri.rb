@@ -9,7 +9,7 @@ module URI
     # This condition must remain even after support for 3.4 has been dropped for users that have
     # `uri` in their lockfile, decoupling it from the ruby version.
 
-    # NOTE: We also defined this in the shim
+    # NOTE: We also define this in the shim
     PARSER = const_defined?(:RFC2396_PARSER) ? RFC2396_PARSER : DEFAULT_PARSER
 
     class << self
