@@ -6,56 +6,56 @@ require "json"
 module RubyLsp
   module TestReporter
     class << self
-      #: (id: String, file: String) -> void
-      def start_test(id:, file:)
+      #: (id: String, uri: URI::Generic) -> void
+      def start_test(id:, uri:)
         result = {
           event: "start",
           id: id,
-          file: file,
+          uri: uri.to_s,
         }
         send_message(result)
       end
 
-      #: (id: String, file: String) -> void
-      def record_pass(id:, file:)
+      #: (id: String, uri: URI::Generic) -> void
+      def record_pass(id:, uri:)
         result = {
           event: "pass",
           id: id,
-          file: file,
+          uri: uri.to_s,
         }
         send_message(result)
       end
 
-      #: (id: String, type: untyped, message: String, file: String) -> void
-      def record_fail(id:, type:, message:, file:)
+      #: (id: String, type: untyped, message: String, uri: URI::Generic) -> void
+      def record_fail(id:, type:, message:, uri:)
         result = {
           event: "fail",
           id: id,
           type: type,
           message: message,
-          file: file,
+          uri: uri.to_s,
         }
         send_message(result)
       end
 
-      #: (id: String, message: String?, file: String) -> void
-      def record_skip(id:, message:, file:)
+      #: (id: String, message: String?, uri: URI::Generic) -> void
+      def record_skip(id:, message:, uri:)
         result = {
           event: "skip",
           id: id,
           message: message,
-          file: file,
+          uri: uri.to_s,
         }
         send_message(result)
       end
 
-      #: (id: String, message: String?, file: String) -> void
-      def record_error(id:, message:, file:)
+      #: (id: String, message: String?, uri: String) -> void
+      def record_error(id:, message:, uri:)
         result = {
           event: "error",
           id: id,
           message: message,
-          file: file,
+          uri: uri.to_s,
         }
         send_message(result)
       end

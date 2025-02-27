@@ -11,11 +11,13 @@ module RubyLsp
     #: (::Test::Unit::TestCase test) -> void
     def test_started(test)
       current_test = test
-      @current_file = file_for_test(current_test)
+      @current_uri = uri_for_test(current_test)
+      return unless @current_uri
+
       @current_test_id = "#{current_test.class.name}##{current_test.method_name}"
       result = {
         id: @current_test_id,
-        file: @current_file,
+        uri: @current_uri,
       }
       TestReporter.start_test(**result)
     end
@@ -28,7 +30,7 @@ module RubyLsp
 
         result = {
           id: @current_test_id,
-          file: @current_file,
+          uri: @current_uri,
         }
         TestReporter.record_pass(**result)
       end
@@ -52,7 +54,7 @@ module RubyLsp
         id: @current_test_id,
         type: failure.class.name,
         message: failure.message,
-        file: @current_file,
+        uri: @current_uri,
       }
       TestReporter.record_fail(**result)
     end
@@ -62,7 +64,7 @@ module RubyLsp
       result = {
         id: @current_test_id,
         message: error.message,
-        file: @current_file,
+        uri: @current_uri,
       }
       TestReporter.record_error(**result)
     end
@@ -72,21 +74,21 @@ module RubyLsp
       result = {
         id: @current_test_id,
         message: pending.message,
-        file: @current_file,
+        uri: @current_uri,
       }
       TestReporter.record_skip(**result)
     end
 
-    #: (::Test::Unit::TestCase test) -> String
-    def file_for_test(test)
+    #: (::Test::Unit::TestCase test) -> URI::Generic?
+    def uri_for_test(test)
       location = test.method(test.method_name).source_location
-      return "" unless location # TODO: when might this be nil?
+      return unless location # TODO: when might this be nil?
 
       file, _line = location
-      return "" if file.start_with?("(eval at ") # test is dynamically defined (TODO: better way to check?)
+      return if file.start_with?("(eval at ") # test is dynamically defined (TODO: better way to check?)
 
       absolute_path = File.expand_path(file, __dir__)
-      URI::Generic.from_path(path: absolute_path).to_s
+      URI::Generic.from_path(path: absolute_path)
     end
 
     #: -> void

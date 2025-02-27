@@ -20,52 +20,52 @@ module RubyLsp
       )
       # end
       actual = parse_output(stdout)
-      actual.each { |result| result["file"].gsub!(File.expand_path("lib/ruby_lsp"), "/absolute_path_to") }
+      actual.each { |result| result["uri"].gsub!(File.expand_path("lib/ruby_lsp"), "/absolute_path_to") }
 
       expected = [
         {
           "event" => "start",
           "id" => "Sample#test_that_fails",
-          "file" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
+          "uri" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
         },
         {
           "event" => "fail",
           "id" => "Sample#test_that_fails",
           "type" => "Test::Unit::Failure",
           "message" => "<1> expected but was\n<2>.",
-          "file" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
+          "uri" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
         },
         {
           "event" => "start",
           "id" => "Sample#test_that_is_pending",
-          "file" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
+          "uri" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
         },
         {
           "event" => "skip",
           "id" => "Sample#test_that_is_pending",
           "message" => "pending test",
-          "file" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
+          "uri" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
         },
         {
           "event" => "start",
           "id" => "Sample#test_that_passes",
-          "file" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
+          "uri" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
         },
         {
           "event" => "pass",
           "id" => "Sample#test_that_passes",
-          "file" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
+          "uri" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
         },
         {
           "event" => "start",
           "id" => "Sample#test_that_raises",
-          "file" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
+          "uri" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
         },
         {
           "event" => "error",
           "id" => "Sample#test_that_raises",
           "message" => "RuntimeError: oops",
-          "file" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
+          "uri" => "file:///absolute_path_to/test/fixtures/test_unit_example.rb",
         },
       ]
       assert_equal(expected, actual)
