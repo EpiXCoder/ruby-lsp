@@ -36,7 +36,6 @@ GEM
     mocha (2.4.5)
       ruby2_keywords (>= 0.0.5)
     netrc (0.11.0)
-    os (1.1.4)
     parallel (1.26.3)
     parser (3.3.7.1)
       ast (~> 2.4.1)
@@ -142,7 +141,6 @@ DEPENDENCIES
   minitest (~> 5.25)
   minitest-reporters (~> 1.7)
   mocha (~> 2.3)
-  os
   psych (~> 5.1)
   rake (~> 13.2)
   rubocop (~> 1.70)
