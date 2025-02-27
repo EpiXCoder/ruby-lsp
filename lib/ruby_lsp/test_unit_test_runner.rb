@@ -15,11 +15,10 @@ module RubyLsp
       return unless @current_uri
 
       @current_test_id = "#{current_test.class.name}##{current_test.method_name}"
-      result = {
+      TestReporter.start_test(
         id: @current_test_id,
         uri: @current_uri,
-      }
-      TestReporter.start_test(**result)
+      )
     end
 
     #: (::Test::Unit::TestCase test) -> void
@@ -28,11 +27,10 @@ module RubyLsp
         # tests with an Omission are still marked as passed, which seems strange
         # return if test.instance_variable_get("@_result").faults.any?
 
-        result = {
+        TestReporter.record_pass(
           id: @current_test_id,
           uri: @current_uri,
-        }
-        TestReporter.record_pass(**result)
+        )
       end
     end
 
@@ -50,33 +48,30 @@ module RubyLsp
 
     #: (::Test::Unit::Failure failure) -> void
     def record_failure(failure)
-      result = {
+      TestReporter.record_fail(
         id: @current_test_id,
         type: failure.class.name,
         message: failure.message,
         uri: @current_uri,
-      }
-      TestReporter.record_fail(**result)
+      )
     end
 
     #: (::Test::Unit::Error error) -> void
     def record_error(error)
-      result = {
+      TestReporter.record_error(
         id: @current_test_id,
         message: error.message,
         uri: @current_uri,
-      }
-      TestReporter.record_error(**result)
+      )
     end
 
     #: (::Test::Unit::Pending pending) -> void
     def record_skip(pending)
-      result = {
+      TestReporter.record_skip(
         id: @current_test_id,
         message: pending.message,
         uri: @current_uri,
-      }
-      TestReporter.record_skip(**result)
+      )
     end
 
     #: (::Test::Unit::TestCase test) -> URI::Generic?
