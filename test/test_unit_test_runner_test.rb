@@ -3,7 +3,6 @@
 
 require "test_helper"
 require "stringio"
-require "os"
 
 module RubyLsp
   class TestUnitTestRunnerTest < Minitest::Test
@@ -75,7 +74,6 @@ module RubyLsp
       output = StringIO.new(shell_output)
       result = []
       while (headers = output.gets("\r\n\r\n"))
-        # binding.irb
         content_length = headers[/Content-Length: (\d+)/i, 1]
         data = output.read(Integer(content_length))
         json = JSON.parse(T.must(data))
