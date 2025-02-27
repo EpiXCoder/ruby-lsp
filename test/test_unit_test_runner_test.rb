@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "os"
 
 module RubyLsp
   class TestUnitTestRunnerTest < Minitest::Test
@@ -66,13 +67,11 @@ module RubyLsp
       output.binmode # for windows
       output.sync = true # for windows
       result = []
-      while (headers = output.gets("\r\n\r\n"))
+      linebreak = OS.windows? ? "\n" : "\r\n"
+      while (headers = output.gets(linebreak * 2))
         content_length = headers[/Content-Length: (\d+)/i, 1]
-
         data = output.read(Integer(content_length))
-        break unless data # windows hack
-
-        json = JSON.parse(data)
+        json = JSON.parse(T.must(data))
         result << json
       end
       result
