@@ -5,15 +5,12 @@ module RubyLsp
   module Listeners
     class TestStyle
       class << self
-        extend T::Sig
-
         #: (Array[Hash[Symbol, untyped]]) -> Array[String]
         def resolve_test_commands(items)
           []
         end
       end
 
-      extend T::Sig
       include Requests::Support::Common
 
       ACCESS_MODIFIERS = [:public, :private, :protected].freeze

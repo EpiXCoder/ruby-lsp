@@ -3,16 +3,12 @@
 
 module URI
   class Generic
-    extend T::Sig
-
     # Avoid a deprecation warning with Ruby 3.4 where the default parser was changed to RFC3986.
     # This condition must remain even after support for 3.4 has been dropped for users that have
     # `uri` in their lockfile, decoupling it from the ruby version.
     PARSER = T.let(const_defined?(:RFC2396_PARSER) ? RFC2396_PARSER : DEFAULT_PARSER, RFC2396_Parser)
 
     class << self
-      extend T::Sig
-
       #: (path: String, ?fragment: String?, ?scheme: String, ?load_path_entry: String?) -> URI::Generic
       def from_path(path:, fragment: nil, scheme: "file", load_path_entry: nil)
         # On Windows, if the path begins with the disk name, we need to add a leading slash to make it a valid URI
