@@ -3,7 +3,6 @@
 
 require "test/unit"
 require "test/unit/ui/testrunner"
-require "stringio"
 require "ruby_lsp/test_reporter"
 require "ruby_indexer/lib/ruby_indexer/uri"
 
