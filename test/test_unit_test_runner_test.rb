@@ -69,6 +69,7 @@ module RubyLsp
       result = []
       while (headers = output.gets("\r\n\r\n"))
         content_length = Integer(headers[/Content-Length: (\d+)/i, 1])
+        puts "**content_length: #{content_length}"
         json = JSON.parse(T.must(output.read(content_length)))
         result << json
       end
