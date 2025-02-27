@@ -5,6 +5,7 @@ require "test/unit"
 require "test/unit/ui/testrunner"
 require "stringio"
 require "ruby_lsp/test_reporter"
+require "ruby_indexer/lib/ruby_indexer/uri"
 
 module RubyLsp
   class TestRunner < ::Test::Unit::UI::TestRunner
@@ -85,7 +86,8 @@ module RubyLsp
       file, _line = location
       return "" if file.start_with?("(eval at ") # test is dynamically defined (TODO: better way to check?)
 
-      File.expand_path(file, __dir__)
+      absolute_path = File.expand_path(file, __dir__)
+      URI::Generic.from_path(path: absolute_path).to_s
     end
 
     #: -> void
