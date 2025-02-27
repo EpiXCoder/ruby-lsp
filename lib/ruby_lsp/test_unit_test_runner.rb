@@ -1,4 +1,4 @@
-# typed: false
+# typed: true
 # frozen_string_literal: true
 
 require "test/unit"
@@ -34,7 +34,7 @@ module RubyLsp
       end
     end
 
-    #: (::Test::Unit::Failure | ::Test::Unit::Omission | ::Test::Unit::Error result) -> void
+    #: (::Test::Unit::Failure | ::Test::Unit::Error | ::Test::Unit::Pending result) -> void
     def result_fault(result)
       case result
       when ::Test::Unit::Failure
@@ -67,11 +67,11 @@ module RubyLsp
       TestReporter.record_error(**result)
     end
 
-    #: (::Test::Unit::Omission omission) -> void
-    def record_skip(omission)
+    #: (::Test::Unit::Pending pending) -> void
+    def record_skip(pending)
       result = {
         id: @current_test_id,
-        message: omission.message,
+        message: pending.message,
         file: @current_file,
       }
       TestReporter.record_skip(**result)
