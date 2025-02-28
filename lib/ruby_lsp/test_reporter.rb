@@ -58,6 +58,8 @@ module RubyLsp
       private
 
       def send_message(method_name, params)
+        $stdout.binmode
+        $stderr.sync = true
         json_message = { method: method_name, params: params }.to_json
         $stdout.write("Content-Length: #{json_message.bytesize}\r\n\r\n#{json_message}")
       end
