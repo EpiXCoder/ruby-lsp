@@ -17,12 +17,13 @@ module RubyLsp
       )
       actual = parse_output(stdout)
 
+      uri = URI::Generic.from_path(path: "#{Dir.pwd}/test/fixtures/test_unit_example.rb").to_s
       expected = [
         {
           "method" => "start",
           "params" => {
             "id" => "Sample#test_that_fails",
-            "uri" => "file://#{Dir.pwd}/test/fixtures/test_unit_example.rb",
+            "uri" => uri,
           },
         },
         {
@@ -31,14 +32,14 @@ module RubyLsp
             "id" => "Sample#test_that_fails",
             "type" => "Test::Unit::Failure",
             "message" => "<1> expected but was\n<2>.",
-            "uri" => "file://#{Dir.pwd}/test/fixtures/test_unit_example.rb",
+            "uri" => uri,
           },
         },
         {
           "method" => "start",
           "params" => {
             "id" => "Sample#test_that_is_pending",
-            "uri" => "file://#{Dir.pwd}/test/fixtures/test_unit_example.rb",
+            "uri" => uri,
           },
         },
         {
@@ -46,28 +47,28 @@ module RubyLsp
           "params" => {
             "id" => "Sample#test_that_is_pending",
             "message" => "pending test",
-            "uri" => "file://#{Dir.pwd}/test/fixtures/test_unit_example.rb",
+            "uri" => uri,
           },
         },
         {
           "method" => "start",
           "params" => {
             "id" => "Sample#test_that_passes",
-            "uri" => "file://#{Dir.pwd}/test/fixtures/test_unit_example.rb",
+            "uri" => uri,
           },
         },
         {
           "method" => "pass",
           "params" => {
             "id" => "Sample#test_that_passes",
-            "uri" => "file://#{Dir.pwd}/test/fixtures/test_unit_example.rb",
+            "uri" => uri,
           },
         },
         {
           "method" => "start",
           "params" => {
             "id" => "Sample#test_that_raises",
-            "uri" => "file://#{Dir.pwd}/test/fixtures/test_unit_example.rb",
+            "uri" => uri,
           },
         },
         {
@@ -75,7 +76,7 @@ module RubyLsp
           "params" => {
             "id" => "Sample#test_that_raises",
             "message" => "RuntimeError: oops",
-            "uri" => "file://#{Dir.pwd}/test/fixtures/test_unit_example.rb",
+            "uri" => uri,
           },
         },
       ]
