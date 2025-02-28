@@ -7,6 +7,9 @@ require "stringio"
 module RubyLsp
   class TestUnitTestRunnerTest < Minitest::Test
     def test_test_runner_output
+      $stdout.binmode
+      $stdout.sync = true
+
       stdout, _stderr, _status = Open3.capture3(
         "bundle",
         "exec",
